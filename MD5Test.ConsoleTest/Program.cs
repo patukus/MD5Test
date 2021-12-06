@@ -10,7 +10,7 @@ namespace MD5Test.ConsoleTest
     {
         static void Main(string[] args)
         {
-            string input = "Ala ma kota";
+            string input = "adfsdf";
 
             Console.WriteLine($"Mój kod: {CreateMD5ByCodeV2(input)}");
             Console.WriteLine($"Biblioteka: {CreateMD5(input)}");
@@ -38,7 +38,8 @@ namespace MD5Test.ConsoleTest
         {
             var T = CreateT();
             var R = CreateR();
-            byte[] inputArray = Encoding.ASCII.GetBytes(input); //Tablica źródła
+
+            byte[] inputArray = Encoding.ASCII.GetBytes(input); 
             BitArray inputBitArray = new BitArray(1);
             string inputByteString = "";
             foreach (var bytes in inputArray)
@@ -66,7 +67,6 @@ namespace MD5Test.ConsoleTest
             }
 
             //Doklejenie 64-bitowego (zaczynając od najmniej znaczącego bitu) licznika oznaczającego rozmiar wiadomości; w ten sposób otrzymywana wiadomość złożona jest z 512-bitowych fragmentów
-
             var binaryString = Convert.ToString(size, 2);
             var loops = 64 - binaryString.Length;
             for (int i = 0; i < loops; i++)
@@ -80,22 +80,19 @@ namespace MD5Test.ConsoleTest
                 inputBitArray.Length++;
                 inputBitArray.Set(inputBitArray.Length - 1, binaryString[i] == '0' ? false : true);
             }
-            string tmp = "";
-            for (int i = 0; i < inputBitArray.Length; i++)
-            {
-                var t = inputBitArray[i] == true ? "1" : "0";
-                tmp += t; 
-            }
+
+            //Ustawienie stanu początkowego
+            //uint h0 = 0x01234567;
+            //uint h1 = 0x89abcdef;
+            //uint h2 = 0xfedcba98;
+            //uint h3 = 0x76543210;
+
+            uint h0 = 0x67452301;
+            uint h1 = 0xEFCDAB89;
+            uint h2 = 0x98BADCFE;
+            uint h3 = 0x10325476;
 
             //Dotąd napewno jest dobrze
-
-            //Ustawienie stanu początkowego na 0123456789abcdeffedcba9876543210
-            uint h0 = 0x01234567;
-            uint h1 = 0x89abcdef;
-            uint h2 = 0xfedcba98;
-            uint h3 = 0x76543210;
-
-
 
 
             var L = inputBitArray.Length / 512;
@@ -148,6 +145,7 @@ namespace MD5Test.ConsoleTest
                                 f = I(bitArrayB, bitArrayC, bitArrayD);
                                 break;
                         }
+
                         if(i == 0)
                         {
                             g = j;
@@ -163,15 +161,16 @@ namespace MD5Test.ConsoleTest
                         bitArrayC = bitArrayB;
 
                         var result = AddModulo(bitArrayA, f, ConvertFromLong(T[g]), M[g]);
-
                         bitArrayB = AddModulo(bitArrayB, result.LeftShift(R[i * j]));
                         bitArrayA = temp;
+
                         h0 = h0 + GetuintFromBitArray(bitArrayA);
                         h1 = h1 + GetuintFromBitArray(bitArrayB);
                         h2 = h2 + GetuintFromBitArray(bitArrayC);
                         h3 = h3 + GetuintFromBitArray(bitArrayD);
+
                     }
-                }
+                }               
             }
 
             string hexValue = h0.ToString("X")+ h1.ToString("X")+ h2.ToString("X")+ h3.ToString("X");
@@ -180,72 +179,7 @@ namespace MD5Test.ConsoleTest
 
 
             return hexValue;
-        }
-
-        public static byte[] BitArrayToByteArray(BitArray bits)
-        {
-            byte[] ret = new byte[(bits.Length - 1) / 8 + 1];
-            bits.CopyTo(ret, 0);
-            return ret;
-        }
-
-        public static string CreateMD5ByCode(string input)
-        {
-
-            byte[] inputArray = Encoding.ASCII.GetBytes(input); //Tablica źródła
-
-            // Doklejenie do wiadomości wejściowej bitu o wartości 1
-            Array.Resize(ref inputArray, inputArray.Length + 1);
-            inputArray[inputArray.Length - 1] = 1;
-
-            //Doklejenie takiej ilości zer, by ciąg składał się z 512-bitowych bloków i ostatniego niepełnego – 448-bitowego
-            while(inputArray.Length % 512 != 448)
-            {
-                Array.Resize(ref inputArray, inputArray.Length + 1);
-                inputArray[inputArray.Length - 1] = 0;
-            }
-
-            //Doklejenie 64-bitowego (zaczynając od najmniej znaczącego bitu) licznika oznaczającego rozmiar wiadomości; w ten sposób otrzymywana wiadomość złożona jest z 512-bitowych fragmentów
-            byte[] couterArray = new byte[64];
-            Int64 sumValue = inputArray.Length;
-            byte[] sumValueBytes = BitConverter.GetBytes(sumValue);
-
-            for (int i = 0; i < sumValueBytes.Length; i++)
-            {
-                couterArray[couterArray.Length - 1 - i] = sumValueBytes[i];
-            }
-
-
-            var inputArrayList = inputArray.ToList();
-            var couterArrayList = couterArray.ToList();
-            var finalList = new List<byte>();
-            finalList.AddRange(inputArrayList);
-            finalList.AddRange(couterArrayList);
-
-            var finalInputArray = finalList.ToArray();
-
-
-            //Ustawienie stanu początkowego na 0123456789abcdeffedcba9876543210
-            var A = 0x01234567;
-
-            var B = 0x89abcdef;
-            var C = 0xfedcba98;
-            var D = 0x76543210;
-
-
-
-            //var L = finalInputArray.Length / 512;
-            //for (int i = 0; i < L; i++)
-            //{
-
-            //}
-            //Uruchomienie na każdym bloku funkcji zmieniającej stan (istnieje przynajmniej jeden blok nawet dla pustego wejścia)
-
-
-            //Zwrócenie stanu po przetworzeniu ostatniego bloku jako obliczony skrót wiadomości
-
-            return input;
-        }
+        }       
 
         public static BitArray AddModulo(BitArray a, BitArray b, long modulo = 4294967296)
         {
@@ -259,13 +193,6 @@ namespace MD5Test.ConsoleTest
             long result = ((GetLongFromBitArray(a) % modulo) + (GetLongFromBitArray(b) % modulo) + (GetLongFromBitArray(c) % modulo) + (GetLongFromBitArray(d) % modulo)) % modulo;
             var binaryString = Make32BitString(Convert.ToString(result, 2));
             return ConvertFromString(binaryString);
-        }
-
-        public static long AddModuloUint(uint a, uint b, long modulo = 4294967296)
-        {
-            long result = ((a % modulo) + (b % modulo)) % modulo;
-            
-            return result;
         }
 
         public static BitArray F(BitArray x, BitArray y, BitArray z)
@@ -288,31 +215,12 @@ namespace MD5Test.ConsoleTest
             return y.Xor(x.Or(z.Not()));
         }
 
-        public static double ToRadians(this double val)
-        {
-            return (Math.PI / 180) * val;
-        }
-
-        public static uint GetIntFromBitArray(BitArray bitArray)
-        {
-
-            if (bitArray.Length > 32)
-                throw new ArgumentException("Argument length shall be at most 32 bits.");
-
-            uint[] array = new uint[1];
-            bitArray.CopyTo(array, 0);
-            return array[0];
-
-        }
-
-
         private static long GetLongFromBitArray(BitArray bitArray)
         {
             var array = new byte[8];
             bitArray.CopyTo(array, 0);
             return BitConverter.ToInt64(array, 0);
         }
-
 
         public static uint GetuintFromBitArray(BitArray bitArray)
         {
@@ -362,7 +270,7 @@ namespace MD5Test.ConsoleTest
             long[] T = new long[64];
             for (int i = 0; i < T.Length; i++)
             {
-                T[i] = Convert.ToInt64(Math.Floor(4294967296 * Math.Abs(Math.Sin(ToRadians(i)))));
+                T[i] = Convert.ToInt64(Math.Floor(4294967296 * Math.Abs(Math.Sin(i+1))));          
             }
 
             return T;
