@@ -6,7 +6,7 @@ using System.Text;
 
 namespace MD5Test.ConsoleTest
 {
-    static class Program
+    public static class Program
     {
         static void Main(string[] args)
         {
@@ -97,82 +97,70 @@ namespace MD5Test.ConsoleTest
 
             var L = inputBitArray.Length / 512;
             var N = 16 * L;
-            BitArray[] M = new BitArray[N]; //Podział na 32 bitowe słowa
+            uint[] M = new uint[N]; //Podział na 32 bitowe słowa
             for (int i = 0; i < N; i++)
             {
-                BitArray word = new BitArray(32);
-                for (int j = 0; j < word.Length; j++)
+                string binaryWord = "";
+                for (int j = 0; j < 32; j++)
                 {
-                    word.Set(j, inputBitArray[i * j]);
+                    binaryWord += inputBitArray[i+j] == true ? "1" : "0";
                 }
-                M[i] = word;
+                M[i] = Convert.ToUInt32(binaryWord,2);
             }
 
             //Dotąd napewno jest dobrze
 
             //Uruchomienie na każdym bloku funkcji zmieniającej stan (istnieje przynajmniej jeden blok nawet dla pustego wejścia)
             var a = h0;
-            var binaryStringA = Make32BitString(Convert.ToString(a, 2));
-            BitArray bitArrayA = ConvertFromString(binaryStringA);
             var b = h1;
-            var binaryStringB = Make32BitString(Convert.ToString(b, 2));
-            BitArray bitArrayB = ConvertFromString(binaryStringB);
             var c = h2;
-            var binaryStringC = Make32BitString(Convert.ToString(c, 2));
-            BitArray bitArrayC = ConvertFromString(binaryStringC);
             var d = h3;
-            var binaryStringD = Make32BitString(Convert.ToString(d, 2));
-            BitArray bitArrayD = ConvertFromString(binaryStringD);
 
-            BitArray f = new BitArray(1);
-            int g;
+
+            uint f= 0;
+            int g = 0;
             for (int q = 0; q < L; q++)
             {
-                for (int i = 0; i < 4; i++)
+
+                for (int j = 0; j < 64; j++)
                 {
-                    for (int j = 0; j < 16; j++)
+                    if (j >= 0 && j <= 15)
                     {
-                        switch (i)
-                        {
-                            case 0:
-                                f = F(bitArrayB, bitArrayC, bitArrayD);
-                                break;
-                            case 1:
-                                f = G(bitArrayB, bitArrayC, bitArrayD);
-                                break;
-                            case 2:
-                                f = H(bitArrayB, bitArrayC, bitArrayD);
-                                break;
-                            case 3:
-                                f = I(bitArrayB, bitArrayC, bitArrayD);
-                                break;
-                        }
-
-                        if(i == 0)
-                        {
-                            g = j;
-                        }
-                        else
-                        {
-                            g = (i * j) % 16;
-                        }
-                        
-
-                        BitArray temp = bitArrayD;
-                        bitArrayD = bitArrayC;
-                        bitArrayC = bitArrayB;
-
-                        var result = AddModulo(bitArrayA, f, ConvertFromLong(T[g]), M[g]);
-                        bitArrayB = AddModulo(bitArrayB, result.LeftShift(R[i * j]));
-                        bitArrayA = temp;
-
-                        h0 = h0 + GetuintFromBitArray(bitArrayA);
-                        h1 = h1 + GetuintFromBitArray(bitArrayB);
-                        h2 = h2 + GetuintFromBitArray(bitArrayC);
-                        h3 = h3 + GetuintFromBitArray(bitArrayD);
-
+                        f = F(b, c, d);
+                        g = j;
                     }
-                }               
+                    else if (j >= 16 && j <= 31)
+                    {
+                        f = G(b, c, d);
+                        g = (5*j +1) % 16;
+                    }
+                    else if (j >= 32 && j <= 47)
+                    {
+                        f = H(b, c, d);
+                        g = (3 * j + 5) % 16;
+                    }
+                    else if (j >= 48 && j <= 63)
+                    {
+                        f = I(b, c, d);
+                        g = (7 * j) % 16;
+                    }
+
+
+
+                    uint temp = d;
+                    d = c;
+                    c = b;
+                    b = b + ((a + f + T[j] + M[g]) << R[j]);
+                    //b = ((((a +(b & c)) | (~b & d))  + T[j] + M[g]) << R[j]);
+                    a = temp;
+
+                    h0 = a;
+                    h1 = b;
+                    h2 = c;
+                    h3 = d;
+
+                }
+
             }
 
             string hexValue = h0.ToString("X")+ h1.ToString("X")+ h2.ToString("X")+ h3.ToString("X");
@@ -183,38 +171,36 @@ namespace MD5Test.ConsoleTest
             return hexValue;
         }       
 
-        public static BitArray AddModulo(BitArray a, BitArray b, long modulo = 4294967296)
+        public static uint AddModulo(uint a, uint b, long modulo = 4294967296)
         {
-            long result = ((GetLongFromBitArray(a) % modulo) + (GetLongFromBitArray(b) % modulo)) % modulo;
-            var binaryString = Make32BitString(Convert.ToString(result, 2));
-            return ConvertFromString(binaryString);
+            long result = ((a % modulo) + (b % modulo)) % modulo;           
+            return Convert.ToUInt32(result);
         }
 
-        public static BitArray AddModulo(BitArray a, BitArray b, BitArray c, BitArray d, long modulo = 4294967296)
+        public static uint AddModulo(uint a, uint b, uint c, uint d, long modulo = 4294967296)
         {
-            long result = ((GetLongFromBitArray(a) % modulo) + (GetLongFromBitArray(b) % modulo) + (GetLongFromBitArray(c) % modulo) + (GetLongFromBitArray(d) % modulo)) % modulo;
-            var binaryString = Make32BitString(Convert.ToString(result, 2));
-            return ConvertFromString(binaryString);
+            long result = ((a % modulo) + (b % modulo) + (c % modulo) + (d % modulo)) % modulo;
+            return Convert.ToUInt32(result);
         }
 
-        public static BitArray F(BitArray x, BitArray y, BitArray z)
+        public static uint F(uint x, uint y, uint z)
         {
-            return x.And(y).Or(x.Not().And(z));
+            return (x & y) | (~x & z);
         }
 
-        public static BitArray G(BitArray x, BitArray y, BitArray z)
+        public static uint G(uint x, uint y, uint z)
         {
-            return x.And(z).Or(y.And(z.Not()));
+            return (x & z) | (y & ~z);
         }
 
-        public static BitArray H(BitArray x, BitArray y, BitArray z)
+        public static uint H(uint x, uint y, uint z)
         {
-            return x.Xor(y).Xor(z);
+            return x ^ y ^ z;
         }
 
-        public static BitArray I(BitArray x, BitArray y, BitArray z)
+        public static uint I(uint x, uint y, uint z)
         {
-            return y.Xor(x.Or(z.Not()));
+            return y ^ (x | ~z);
         }
 
         private static long GetLongFromBitArray(BitArray bitArray)
@@ -229,10 +215,15 @@ namespace MD5Test.ConsoleTest
 
             if (bitArray.Length > 32)
                 throw new ArgumentException("Argument length shall be at most 32 bits.");
+            string binaryString = "";
+            for (int i = 0; i < bitArray.Length; i++)
+            {
+                var value = bitArray[i] == true ? "1" : "0";
+                binaryString += value;
+            }
+            uint result = (uint)Convert.ToInt32(binaryString, 2);
 
-            uint[] array = new uint[1];
-            bitArray.CopyTo(array, 0);
-            return array[0];
+            return result;
 
         }
 
@@ -267,12 +258,12 @@ namespace MD5Test.ConsoleTest
             return binaryString;
         }
 
-        public static long[] CreateT()
+        public static uint[] CreateT()
         {
-            long[] T = new long[64];
-            for (int i = 0; i < T.Length; i++)
+            uint[] T = new uint[64];
+            for (uint i = 0; i < T.Length; i++)
             {
-                T[i] = Convert.ToInt64(Math.Floor(4294967296 * Math.Abs(Math.Sin(i+1))));          
+                T[i] = Convert.ToUInt32(Math.Floor(4294967296 * Math.Abs(Math.Sin(i+1))));          
             }
 
             return T;
@@ -280,7 +271,7 @@ namespace MD5Test.ConsoleTest
 
         public static int[] CreateR()
         {
-            int[] R = new int[] { 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 227, 12, 17, 22, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21 };    
+            int[] R = new int[] { 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21 };    
             return R;
         }
     }

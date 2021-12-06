@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MD5Test.ConsoleTest", "MD5Test.ConsoleTest\MD5Test.ConsoleTest.csproj", "{25A292E6-0B4F-44C5-A4DC-623685C64D53}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MD5Test.ConsoleTest", "MD5Test.ConsoleTest\MD5Test.ConsoleTest.csproj", "{25A292E6-0B4F-44C5-A4DC-623685C64D53}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MD5Test.ConsoleTest.Tests", "MD5Test.ConsoleTest.Tests\MD5Test.ConsoleTest.Tests.csproj", "{648D9B61-DF9A-4EE3-A600-7802E414929D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{25A292E6-0B4F-44C5-A4DC-623685C64D53}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{25A292E6-0B4F-44C5-A4DC-623685C64D53}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{25A292E6-0B4F-44C5-A4DC-623685C64D53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{648D9B61-DF9A-4EE3-A600-7802E414929D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{648D9B61-DF9A-4EE3-A600-7802E414929D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{648D9B61-DF9A-4EE3-A600-7802E414929D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{648D9B61-DF9A-4EE3-A600-7802E414929D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
