@@ -92,7 +92,7 @@ namespace MD5Test.ConsoleTest
             uint h2 = 0x98BADCFE;
             uint h3 = 0x10325476;
 
-            //Dotąd napewno jest dobrze
+            
 
 
             var L = inputBitArray.Length / 512;
@@ -107,6 +107,8 @@ namespace MD5Test.ConsoleTest
                 }
                 M[i] = word;
             }
+
+            //Dotąd napewno jest dobrze
 
             //Uruchomienie na każdym bloku funkcji zmieniającej stan (istnieje przynajmniej jeden blok nawet dla pustego wejścia)
             var a = h0;
