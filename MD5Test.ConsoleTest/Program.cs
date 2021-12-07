@@ -126,22 +126,22 @@ namespace MD5Test.ConsoleTest
                 {
                     if (j >= 0 && j <= 15)
                     {
-                        f = F(b, c, d);
+                        f = BinaryOperations.F(b, c, d);
                         g = j;
                     }
                     else if (j >= 16 && j <= 31)
                     {
-                        f = G(b, c, d);
+                        f = BinaryOperations.G(b, c, d);
                         g = (5*j +1) % 16;
                     }
                     else if (j >= 32 && j <= 47)
                     {
-                        f = H(b, c, d);
+                        f = BinaryOperations.H(b, c, d);
                         g = (3 * j + 5) % 16;
                     }
                     else if (j >= 48 && j <= 63)
                     {
-                        f = I(b, c, d);
+                        f = BinaryOperations.I(b, c, d);
                         g = (7 * j) % 16;
                     }
 
@@ -183,25 +183,7 @@ namespace MD5Test.ConsoleTest
             return Convert.ToUInt32(result);
         }
 
-        public static uint F(uint x, uint y, uint z)
-        {
-            return (x & y) | (~x & z);
-        }
 
-        public static uint G(uint x, uint y, uint z)
-        {
-            return (x & z) | (y & ~z);
-        }
-
-        public static uint H(uint x, uint y, uint z)
-        {
-            return x ^ y ^ z;
-        }
-
-        public static uint I(uint x, uint y, uint z)
-        {
-            return y ^ (x | ~z);
-        }
 
         private static long GetLongFromBitArray(BitArray bitArray)
         {

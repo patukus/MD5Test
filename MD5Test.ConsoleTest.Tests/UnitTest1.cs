@@ -2,7 +2,6 @@ using NUnit.Framework;
 
 namespace MD5Test.ConsoleTest.Tests
 {
-    [TestFixture]
     public class Tests
     {
         [SetUp]
@@ -10,59 +9,76 @@ namespace MD5Test.ConsoleTest.Tests
         {
         }
 
-        [TestCase(0, 0, 0, ExpectedResult = 0)]
-        [TestCase(0, 0, 1, ExpectedResult = 1)]
-        [TestCase(0, 1, 0, ExpectedResult = 0)]
-        [TestCase(0, 1, 1, ExpectedResult = 1)]
-        [TestCase(1, 0, 0, ExpectedResult = 0)]
-        [TestCase(1, 0, 1, ExpectedResult = 0)]
-        [TestCase(1, 1, 0, ExpectedResult = 1)]
-        [TestCase(1, 1, 1, ExpectedResult = 1)]
-        public uint TestF(uint x, uint y, uint z)
+        [TestCase(0, 0, 0, ExpectedResult = (uint)0)]
+        [TestCase(0, 0, 1, ExpectedResult = (uint)1)]
+        [TestCase(0, 1, 0, ExpectedResult = (uint)0)]
+        [TestCase(0, 1, 1, ExpectedResult = (uint)1)]
+        [TestCase(1, 0, 0, ExpectedResult = (uint)0)]
+        [TestCase(1, 0, 1, ExpectedResult = (uint)0)]
+        [TestCase(1, 1, 0, ExpectedResult = (uint)1)]
+        [TestCase(1, 1, 1, ExpectedResult = (uint)1)]
+        public uint TestF(int a, int b, int c)
         {
-            var result = Program.F(x, y, z);
+            uint x = (uint)a;
+            uint y = (uint)b;
+            uint z = (uint)c;
+
+
+            var result = BinaryOperations.F(x, y, z);
             return result;
         }
 
-        [TestCase(0, 0, 0, ExpectedResult = 0)]
-        [TestCase(0, 0, 1, ExpectedResult = 0)]
-        [TestCase(0, 1, 0, ExpectedResult = 1)]
-        [TestCase(0, 1, 1, ExpectedResult = 0)]
-        [TestCase(1, 0, 0, ExpectedResult = 0)]
-        [TestCase(1, 0, 1, ExpectedResult = 1)]
-        [TestCase(1, 1, 0, ExpectedResult = 1)]
-        [TestCase(1, 1, 1, ExpectedResult = 1)]
-        public uint TestG(uint x, uint y, uint z)
+        [TestCase(0, 0, 0, ExpectedResult = (uint)0)]
+        [TestCase(0, 0, 1, ExpectedResult = (uint)0)]
+        [TestCase(0, 1, 0, ExpectedResult = (uint)1)]
+        [TestCase(0, 1, 1, ExpectedResult = (uint)0)]
+        [TestCase(1, 0, 0, ExpectedResult = (uint)0)]
+        [TestCase(1, 0, 1, ExpectedResult = (uint)1)]
+        [TestCase(1, 1, 0, ExpectedResult = (uint)1)]
+        [TestCase(1, 1, 1, ExpectedResult = (uint)1)]
+        public uint TestG(int a, int b, int c)
         {
-            var result = Program.G(x, y, z);
+            uint x = (uint)a;
+            uint y = (uint)b;
+            uint z = (uint)c;
+
+            var result = BinaryOperations.G(x, y, z);
             return result;
         }
 
-        [TestCase(0, 0, 0, ExpectedResult = 0)]
-        [TestCase(0, 0, 1, ExpectedResult = 1)]
-        [TestCase(0, 1, 0, ExpectedResult = 1)]
-        [TestCase(0, 1, 1, ExpectedResult = 0)]
-        [TestCase(1, 0, 0, ExpectedResult = 1)]
-        [TestCase(1, 0, 1, ExpectedResult = 0)]
-        [TestCase(1, 1, 0, ExpectedResult = 0)]
-        [TestCase(1, 1, 1, ExpectedResult = 1)]
-        public uint TestH(uint x, uint y, uint z)
+        [TestCase(0, 0, 0, ExpectedResult = (uint)0)]
+        [TestCase(0, 0, 1, ExpectedResult = (uint)1)]
+        [TestCase(0, 1, 0, ExpectedResult = (uint)1)]
+        [TestCase(0, 1, 1, ExpectedResult = (uint)0)]
+        [TestCase(1, 0, 0, ExpectedResult = (uint)1)]
+        [TestCase(1, 0, 1, ExpectedResult = (uint)0)]
+        [TestCase(1, 1, 0, ExpectedResult = (uint)0)]
+        [TestCase(1, 1, 1, ExpectedResult = (uint)1)]
+        public uint TestH(int a, int b, int c)
         {
-            var result = Program.H(x, y, z);
+            uint x = (uint)a;
+            uint y = (uint)b;
+            uint z = (uint)c;
+
+            var result = BinaryOperations.H(x, y, z);
             return result;
         }
 
-        [TestCase(0, 0, 0, ExpectedResult = 1)]
-        [TestCase(0, 0, 1, ExpectedResult = 0)]
-        [TestCase(0, 1, 0, ExpectedResult = 0)]
-        [TestCase(0, 1, 1, ExpectedResult = 1)]
-        [TestCase(1, 0, 0, ExpectedResult = 1)]
-        [TestCase(1, 0, 1, ExpectedResult = 1)]
-        [TestCase(1, 1, 0, ExpectedResult = 0)]
-        [TestCase(1, 1, 1, ExpectedResult = 0)]
-        public uint TestI(uint x, uint y, uint z)
+        [TestCase(0, 0, 0, ExpectedResult = (uint)1)]
+        [TestCase(0, 0, 1, ExpectedResult = (uint)0)]
+        [TestCase(0, 1, 0, ExpectedResult = (uint)0)]
+        [TestCase(0, 1, 1, ExpectedResult = (uint)1)]
+        [TestCase(1, 0, 0, ExpectedResult = (uint)1)]
+        [TestCase(1, 0, 1, ExpectedResult = (uint)1)]
+        [TestCase(1, 1, 0, ExpectedResult = (uint)0)]
+        [TestCase(1, 1, 1, ExpectedResult = (uint)0)]
+        public uint TestI(int a, int b, int c)
         {
-            var result = Program.I(x, y, z);
+            uint x = (uint)a;
+            uint y = (uint)b;
+            uint z = (uint)c;
+
+            var result = BinaryOperations.I(x, y, z);
             return result;
         }
     }
