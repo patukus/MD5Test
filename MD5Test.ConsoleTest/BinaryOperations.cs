@@ -1,15 +1,20 @@
-﻿namespace MD5Test.ConsoleTest
+﻿using System;
+using System.Linq;
+
+namespace MD5Test.ConsoleTest
 {
     public class BinaryOperations
     {
         public static uint F(uint x, uint y, uint z)
         {
-            return (x & y) | (~x & z);
+            //return (x & y) | ((~x) & z);
+            return z ^ (x & (y ^ z));
         }
 
         public static uint G(uint x, uint y, uint z)
         {
-            return (x & z) | (y & ~z);
+            //return (x & z) | (y & ~z);
+            return y ^ (z & (x ^ y));
         }
 
         public static uint H(uint x, uint y, uint z)

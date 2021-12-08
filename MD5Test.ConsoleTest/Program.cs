@@ -21,7 +21,7 @@ namespace MD5Test.ConsoleTest
             // Use input string to calculate MD5 hash
             using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
             {
-                byte[] inputBytes = Encoding.ASCII.GetBytes(input);
+                byte[] inputBytes = Encoding.Default.GetBytes(input);
                 byte[] hashBytes = md5.ComputeHash(inputBytes);
 
                 // Convert the byte array to hexadecimal string
@@ -34,6 +34,11 @@ namespace MD5Test.ConsoleTest
             }
         }
 
+
+
+        // Use any sort of encoding you like. 
+         
+
         public static string CreateMD5ByCodeV2(string input)
         {
             var T = CreateT();
@@ -44,7 +49,7 @@ namespace MD5Test.ConsoleTest
             string inputByteString = "";
             foreach (var bytes in inputArray)
             {
-                var byteString = Convert.ToString(bytes, 2);
+                var byteString = Convert.ToString(bytes,2);
                 var byteloops = 8 - byteString.Length;
                 for (int i = 0; i < byteloops; i++)
                 {
@@ -52,6 +57,7 @@ namespace MD5Test.ConsoleTest
                 }
                 inputByteString += byteString;
             }
+
             inputBitArray = ConvertFromString(inputByteString);
             var size = inputBitArray.Length;
 
@@ -75,26 +81,36 @@ namespace MD5Test.ConsoleTest
             }
             binaryString = new String(binaryString.ToArray());
 
+            string[] tempBinaryArrayAdd = new string[8];
+            for (int ii = 0; ii < 8; ii++)
+            {
+                tempBinaryArrayAdd[ii] = binaryString.Substring(ii * 8, 8);
+            }
+
+            var finalBinaryStringAdd = "";
+            foreach (var item in tempBinaryArrayAdd.Reverse())
+            {
+                finalBinaryStringAdd += item;
+            }
+
             for (int i = 0; i < 64; i++)
             {
                 inputBitArray.Length++;
-                inputBitArray.Set(inputBitArray.Length - 1, binaryString[i] == '0' ? false : true);
+                inputBitArray.Set(inputBitArray.Length - 1, finalBinaryStringAdd[i] == '0' ? false : true);
+            }
+
+            string fullData = "";
+            for (int j = 0; j < inputBitArray.Length; j++)
+            {
+                fullData += inputBitArray[j] == true ? "1" : "0";
             }
 
             //Ustawienie stanu początkowego
-            //uint h0 = 0x01234567;
-            //uint h1 = 0x89abcdef;
-            //uint h2 = 0xfedcba98;
-            //uint h3 = 0x76543210;
-
             uint h0 = 0x67452301;
             uint h1 = 0xEFCDAB89;
             uint h2 = 0x98BADCFE;
             uint h3 = 0x10325476;
-
-            
-
-
+       
             var L = inputBitArray.Length / 512;
             var N = 16 * L;
             uint[] M = new uint[N]; //Podział na 32 bitowe słowa
@@ -103,12 +119,24 @@ namespace MD5Test.ConsoleTest
                 string binaryWord = "";
                 for (int j = 0; j < 32; j++)
                 {
-                    binaryWord += inputBitArray[i+j] == true ? "1" : "0";
+                    binaryWord += inputBitArray[i*32+j] == true ? "1" : "0";
                 }
-                M[i] = Convert.ToUInt32(binaryWord,2);
-            }
 
-            //Dotąd napewno jest dobrze
+                string[] tempBinaryArray = new string[4];
+                for (int ii = 0; ii < 4; ii++)
+                {
+                    tempBinaryArray[ii] = binaryWord.Substring(ii * 8, 8);
+                }
+
+                string finalBinaryWord = "";
+                foreach (var item in tempBinaryArray.Reverse())
+                {
+                    finalBinaryWord += item;
+                }
+
+
+                M[i] = Convert.ToUInt32(finalBinaryWord, 2);
+            }
 
             //Uruchomienie na każdym bloku funkcji zmieniającej stan (istnieje przynajmniej jeden blok nawet dla pustego wejścia)
             var a = h0;
@@ -150,74 +178,50 @@ namespace MD5Test.ConsoleTest
                     uint temp = d;
                     d = c;
                     c = b;
-                    b = b + ((a + f + T[j] + M[g]) << R[j]);
-                    //b = ((((a +(b & c)) | (~b & d))  + T[j] + M[g]) << R[j]);
-                    a = temp;
-
-                    h0 = a;
-                    h1 = b;
-                    h2 = c;
-                    h3 = d;
-
+                    b = b + leftRotate(a + f + M[g] + T[j], R[j]);
+                    a = temp;                   
                 }
 
-            }
+                h0 = h0 + a;
+                h1 = h1 + b;
+                h2 = h2 + c;
+                h3 = h3 + d;
 
-            string hexValue = h0.ToString("X")+ h1.ToString("X")+ h2.ToString("X")+ h3.ToString("X");
+            }
 
             //Zwrócenie stanu po przetworzeniu ostatniego bloku jako obliczony skrót wiadomości
+            h0 = ReverseNumber(h0);
+            h1 = ReverseNumber(h1);
+            h2 = ReverseNumber(h2);
+            h3 = ReverseNumber(h3);
 
+            string hexValue = h0.ToString("X") + h1.ToString("X") + h2.ToString("X") + h3.ToString("X");
 
             return hexValue;
-        }       
-
-        public static uint AddModulo(uint a, uint b, long modulo = 4294967296)
-        {
-            long result = ((a % modulo) + (b % modulo)) % modulo;           
-            return Convert.ToUInt32(result);
         }
 
-        public static uint AddModulo(uint a, uint b, uint c, uint d, long modulo = 4294967296)
+        public static uint ReverseNumber(uint number)
         {
-            long result = ((a % modulo) + (b % modulo) + (c % modulo) + (d % modulo)) % modulo;
-            return Convert.ToUInt32(result);
-        }
+            string binaryWord = Make32BitString(Convert.ToString(number, 2));
 
-
-
-        private static long GetLongFromBitArray(BitArray bitArray)
-        {
-            var array = new byte[8];
-            bitArray.CopyTo(array, 0);
-            return BitConverter.ToInt64(array, 0);
-        }
-
-        public static uint GetuintFromBitArray(BitArray bitArray)
-        {
-
-            if (bitArray.Length > 32)
-                throw new ArgumentException("Argument length shall be at most 32 bits.");
-            string binaryString = "";
-            for (int i = 0; i < bitArray.Length; i++)
+            string[] tempBinaryArray = new string[4];
+            for (int i = 0; i < 4; i++)
             {
-                var value = bitArray[i] == true ? "1" : "0";
-                binaryString += value;
+                tempBinaryArray[i] = binaryWord.Substring(i * 8, 8);
             }
-            uint result = (uint)Convert.ToInt32(binaryString, 2);
 
-            return result;
+            var finalBinaryStringAdd = "";
+            foreach (var item in tempBinaryArray.Reverse())
+            {
+                finalBinaryStringAdd += item;
+            }
 
+            return Convert.ToUInt32(finalBinaryStringAdd,2);
         }
 
-        public static BitArray ConvertFromLong(long value)
+        public static uint leftRotate(uint n, int d)
         {
-            var binaryString = Make32BitString(Convert.ToString(value, 2));
-            BitArray bitArray = new BitArray(binaryString.Length);
-            for (int i = 0; i < binaryString.Length; i++)
-            {
-                bitArray.Set(i, binaryString[i] == '0' ? false : true);
-            }
-            return bitArray;
+            return (n << d) | (n >> (32 - d));
         }
 
         public static BitArray ConvertFromString(string binaryString)

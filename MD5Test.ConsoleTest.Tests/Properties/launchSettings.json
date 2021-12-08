@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "MD5Test.ConsoleTest.Tests": {
-      "commandName": "Project",
-      "sqlDebugging": true,
-      "nativeDebugging": true
-    }
-  }
-}
