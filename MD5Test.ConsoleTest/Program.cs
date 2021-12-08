@@ -11,9 +11,10 @@ namespace MD5Test.ConsoleTest
         {
             Console.WriteLine($"Podaj jakiś wyraz: ");
             string input = Console.ReadLine();
-
+            Console.WriteLine($"");
             Console.WriteLine($"Mój kod: {CreateMD5ByCodeV2(input)}");
             Console.WriteLine($"Biblioteka: {CreateMD5(input)}");
+            Console.ReadLine();
         }
 
         /// <summary>
