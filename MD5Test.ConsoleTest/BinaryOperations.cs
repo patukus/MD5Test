@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-
-namespace MD5Test.ConsoleTest
+﻿namespace MD5Test.ConsoleTest
 {
     public class BinaryOperations
     {

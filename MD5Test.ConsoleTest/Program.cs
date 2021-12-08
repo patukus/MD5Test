@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -10,26 +9,24 @@ namespace MD5Test.ConsoleTest
     {
         static void Main(string[] args)
         {
-            string val = "";
-            do
-            {
-                Console.WriteLine($"Podaj jakiś wyraz: ");
-                string input = Console.ReadLine();
+            Console.WriteLine($"Podaj jakiś wyraz: ");
+            string input = Console.ReadLine();
 
-                Console.WriteLine($"Mój kod: {CreateMD5ByCodeV2(input)}");
-                Console.WriteLine($"Biblioteka: {CreateMD5(input)}");
-                val = Console.ReadLine();
-            }
-            while (val != "0");
-            
+            Console.WriteLine($"Mój kod: {CreateMD5ByCodeV2(input)}");
+            Console.WriteLine($"Biblioteka: {CreateMD5(input)}");
         }
 
+        /// <summary>
+        /// MD5 za pomocą biblioteki
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public static string CreateMD5(string input)
         {
             // Use input string to calculate MD5 hash
             using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
             {
-                byte[] inputBytes = Encoding.Default.GetBytes(input);
+                byte[] inputBytes = Encoding.UTF8.GetBytes(input);
                 byte[] hashBytes = md5.ComputeHash(inputBytes);
 
                 // Convert the byte array to hexadecimal string
@@ -42,22 +39,21 @@ namespace MD5Test.ConsoleTest
             }
         }
 
-
-
-        // Use any sort of encoding you like. 
-         
-
+        /// <summary>
+        /// Moja implementacja
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public static string CreateMD5ByCodeV2(string input)
         {
             var T = CreateT();
             var R = CreateR();
 
-            byte[] inputArray = Encoding.UTF8.GetBytes(input); 
-            BitArray inputBitArray = new BitArray(1);
+            byte[] inputArray = Encoding.UTF8.GetBytes(input);
             string inputByteString = "";
             foreach (var bytes in inputArray)
             {
-                var byteString = Convert.ToString(bytes,2);
+                var byteString = Convert.ToString(bytes, 2);
                 var byteloops = 8 - byteString.Length;
                 for (int i = 0; i < byteloops; i++)
                 {
@@ -66,15 +62,15 @@ namespace MD5Test.ConsoleTest
                 inputByteString += byteString;
             }
 
-            inputBitArray = ConvertFromString(inputByteString);
+            BitArray inputBitArray = ConvertFromString(inputByteString);
             var size = inputBitArray.Length;
 
             // Doklejenie do wiadomości wejściowej bitu o wartości 1
             inputBitArray.Length++;
-            inputBitArray.Set(inputBitArray.Length-1, true);
+            inputBitArray.Set(inputBitArray.Length - 1, true);
 
             //Doklejenie takiej ilości zer, by ciąg składał się z 512-bitowych bloków i ostatniego niepełnego – 448-bitowego
-            while(inputBitArray.Length % 512 != 448)
+            while (inputBitArray.Length % 512 != 448)
             {
                 inputBitArray.Length++;
                 inputBitArray.Set(inputBitArray.Length - 1, false);
@@ -95,12 +91,7 @@ namespace MD5Test.ConsoleTest
                 tempBinaryArrayAdd[ii] = binaryString.Substring(ii * 8, 8);
             }
 
-            var finalBinaryStringAdd = "";
-            foreach (var item in tempBinaryArrayAdd.Reverse())
-            {
-                finalBinaryStringAdd += item;
-            }
-
+            var finalBinaryStringAdd = StringArrayToString(tempBinaryArrayAdd.Reverse().ToArray());
             for (int i = 0; i < 64; i++)
             {
                 inputBitArray.Length++;
@@ -118,7 +109,7 @@ namespace MD5Test.ConsoleTest
             uint h1 = 0xEFCDAB89;
             uint h2 = 0x98BADCFE;
             uint h3 = 0x10325476;
-       
+
             var L = inputBitArray.Length / 512;
             var N = 16 * L;
             uint[] M = new uint[N]; //Podział na 32 bitowe słowa
@@ -127,7 +118,7 @@ namespace MD5Test.ConsoleTest
                 string binaryWord = "";
                 for (int j = 0; j < 32; j++)
                 {
-                    binaryWord += inputBitArray[i*32+j] == true ? "1" : "0";
+                    binaryWord += inputBitArray[i * 32 + j] == true ? "1" : "0";
                 }
 
                 string[] tempBinaryArray = new string[4];
@@ -136,31 +127,19 @@ namespace MD5Test.ConsoleTest
                     tempBinaryArray[ii] = binaryWord.Substring(ii * 8, 8);
                 }
 
-                string finalBinaryWord = "";
-                foreach (var item in tempBinaryArray.Reverse())
-                {
-                    finalBinaryWord += item;
-                }
-
-
+                string finalBinaryWord = StringArrayToString(tempBinaryArray.Reverse().ToArray());
                 M[i] = Convert.ToUInt32(finalBinaryWord, 2);
             }
 
-            //Uruchomienie na każdym bloku funkcji zmieniającej stan (istnieje przynajmniej jeden blok nawet dla pustego wejścia)
-            var a = h0;
-            var b = h1;
-            var c = h2;
-            var d = h3;
-
-
-            uint f= 0;
+            uint f = 0;
             int g = 0;
             for (int q = 0; q < L; q++)
             {
-                a = h0;
-                b = h1;
-                c = h2;
-                d = h3;
+                //Uruchomienie na każdym bloku funkcji zmieniającej stan (istnieje przynajmniej jeden blok nawet dla pustego wejścia)
+                uint a = h0;
+                uint b = h1;
+                uint c = h2;
+                uint d = h3;
 
                 for (int j = 0; j < 64; j++)
                 {
@@ -185,13 +164,11 @@ namespace MD5Test.ConsoleTest
                         g = (7 * j) % 16;
                     }
 
-
-
                     uint temp = d;
                     d = c;
                     c = b;
-                    b = b + leftRotate(a + f + M[g+q*16] + T[j], R[j]);
-                    a = temp;                   
+                    b = b + leftRotate(a + f + M[g + q * 16] + T[j], R[j]);
+                    a = temp;
                 }
 
                 h0 = h0 + a;
@@ -207,14 +184,24 @@ namespace MD5Test.ConsoleTest
             h2 = ReverseNumber(h2);
             h3 = ReverseNumber(h3);
 
-            string hexValue = Make8BitString(h0.ToString("X")) + Make8BitString(h1.ToString("X")) + Make8BitString(h2.ToString("X")) + Make8BitString(h3.ToString("X"));
+            string hexValue = MakeXBitSting(h0.ToString("X"),8) + MakeXBitSting(h1.ToString("X"),8) + MakeXBitSting(h2.ToString("X"),8) + MakeXBitSting(h3.ToString("X"),8);
 
             return hexValue;
         }
 
+        public static string StringArrayToString(string[] array)
+        {
+            string result = "";
+            foreach (var item in array)
+            {
+                result += item;
+            }
+            return result;
+        }
+
         public static uint ReverseNumber(uint number)
         {
-            string binaryWord = Make32BitString(Convert.ToString(number, 2));
+            string binaryWord = MakeXBitSting(Convert.ToString(number, 2),32);
 
             string[] tempBinaryArray = new string[4];
             for (int i = 0; i < 4; i++)
@@ -222,13 +209,9 @@ namespace MD5Test.ConsoleTest
                 tempBinaryArray[i] = binaryWord.Substring(i * 8, 8);
             }
 
-            var finalBinaryStringAdd = "";
-            foreach (var item in tempBinaryArray.Reverse())
-            {
-                finalBinaryStringAdd += item;
-            }
+            var finalBinaryStringAdd = StringArrayToString(tempBinaryArray.Reverse().ToArray());
 
-            return Convert.ToUInt32(finalBinaryStringAdd,2);
+            return Convert.ToUInt32(finalBinaryStringAdd, 2);
         }
 
         public static uint leftRotate(uint n, int d)
@@ -246,19 +229,9 @@ namespace MD5Test.ConsoleTest
             return bitArray;
         }
 
-        public static string Make8BitString(string binaryString)
+        public static string MakeXBitSting(string binaryString, int bits)
         {
-            var loops = 8 - binaryString.Length;
-            for (int i = 0; i < loops; i++)
-            {
-                binaryString = new String(binaryString.Prepend('0').ToArray());
-            }
-            return binaryString;
-        }
-
-        public static string Make32BitString(string binaryString)
-        {
-            var loops = 32 - binaryString.Length;
+            var loops = bits - binaryString.Length;
             for (int i = 0; i < loops; i++)
             {
                 binaryString = new String(binaryString.Prepend('0').ToArray());
@@ -271,7 +244,7 @@ namespace MD5Test.ConsoleTest
             uint[] T = new uint[64];
             for (uint i = 0; i < T.Length; i++)
             {
-                T[i] = Convert.ToUInt32(Math.Floor(4294967296 * Math.Abs(Math.Sin(i+1))));          
+                T[i] = Convert.ToUInt32(Math.Floor(4294967296 * Math.Abs(Math.Sin(i + 1))));
             }
 
             return T;
@@ -279,7 +252,7 @@ namespace MD5Test.ConsoleTest
 
         public static int[] CreateR()
         {
-            int[] R = new int[] { 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21 };    
+            int[] R = new int[] { 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21 };
             return R;
         }
     }
