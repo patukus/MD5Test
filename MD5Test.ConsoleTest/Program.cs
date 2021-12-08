@@ -10,10 +10,18 @@ namespace MD5Test.ConsoleTest
     {
         static void Main(string[] args)
         {
-            string input = "adfsdf";
+            string val = "";
+            do
+            {
+                Console.WriteLine($"Podaj jakiś wyraz: ");
+                string input = Console.ReadLine();
 
-            Console.WriteLine($"Mój kod: {CreateMD5ByCodeV2(input)}");
-            Console.WriteLine($"Biblioteka: {CreateMD5(input)}");
+                Console.WriteLine($"Mój kod: {CreateMD5ByCodeV2(input)}");
+                Console.WriteLine($"Biblioteka: {CreateMD5(input)}");
+                val = Console.ReadLine();
+            }
+            while (val != "0");
+            
         }
 
         public static string CreateMD5(string input)
@@ -44,7 +52,7 @@ namespace MD5Test.ConsoleTest
             var T = CreateT();
             var R = CreateR();
 
-            byte[] inputArray = Encoding.ASCII.GetBytes(input); 
+            byte[] inputArray = Encoding.UTF8.GetBytes(input); 
             BitArray inputBitArray = new BitArray(1);
             string inputByteString = "";
             foreach (var bytes in inputArray)
@@ -149,6 +157,10 @@ namespace MD5Test.ConsoleTest
             int g = 0;
             for (int q = 0; q < L; q++)
             {
+                a = h0;
+                b = h1;
+                c = h2;
+                d = h3;
 
                 for (int j = 0; j < 64; j++)
                 {
@@ -160,7 +172,7 @@ namespace MD5Test.ConsoleTest
                     else if (j >= 16 && j <= 31)
                     {
                         f = BinaryOperations.G(b, c, d);
-                        g = (5*j +1) % 16;
+                        g = (5 * j + 1) % 16;
                     }
                     else if (j >= 32 && j <= 47)
                     {
@@ -178,7 +190,7 @@ namespace MD5Test.ConsoleTest
                     uint temp = d;
                     d = c;
                     c = b;
-                    b = b + leftRotate(a + f + M[g] + T[j], R[j]);
+                    b = b + leftRotate(a + f + M[g+q*16] + T[j], R[j]);
                     a = temp;                   
                 }
 
@@ -195,7 +207,7 @@ namespace MD5Test.ConsoleTest
             h2 = ReverseNumber(h2);
             h3 = ReverseNumber(h3);
 
-            string hexValue = h0.ToString("X") + h1.ToString("X") + h2.ToString("X") + h3.ToString("X");
+            string hexValue = Make8BitString(h0.ToString("X")) + Make8BitString(h1.ToString("X")) + Make8BitString(h2.ToString("X")) + Make8BitString(h3.ToString("X"));
 
             return hexValue;
         }
@@ -232,6 +244,16 @@ namespace MD5Test.ConsoleTest
                 bitArray.Set(i, binaryString[i] == '0' ? false : true);
             }
             return bitArray;
+        }
+
+        public static string Make8BitString(string binaryString)
+        {
+            var loops = 8 - binaryString.Length;
+            for (int i = 0; i < loops; i++)
+            {
+                binaryString = new String(binaryString.Prepend('0').ToArray());
+            }
+            return binaryString;
         }
 
         public static string Make32BitString(string binaryString)
